@@ -61,7 +61,7 @@ class Rectangle(Shape):
                 elif x == 2:
                     self.points_3d[i][0, 2] *= self.depth
 
-        self.update_2d_projection()
+        self.update_2d_projection(self.points_3d)
 
     def flip(self, axis):
         """
@@ -72,7 +72,7 @@ class Rectangle(Shape):
         for i in range(len(self.points_3d)):
             self.points_3d[i][0, self.AXES[axis.upper()]] *= -1
 
-        self.update_2d_projection()
+        self.update_2d_projection(self.points_3d)
 
 
 

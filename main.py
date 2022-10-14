@@ -16,15 +16,15 @@ degree = 0.01
 zoom = 100
 move_x = 100
 
-py3d.create_rectangle(200, 200, 100, (WIDTH/2, HEIGHT/2))
+py3d.create_rectangle(400, 400, 400, (WIDTH/2, HEIGHT/2))
 
 #py3d.create_rectangle(10, 10, 20, ((WIDTH/2)+200, HEIGHT/2))
 
 
 step_3d = 0.02
 start = True
-
 while running:
+    degree += 0.01
     if start:
         #py3d.update_3d()
         start = False
@@ -39,7 +39,7 @@ while running:
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_f:
-                py3d.update_3d()
+                py3d.update_3d(py3d.polygons[0])
 
     if keys[pygame.K_UP]:
         py3d.rotate(py3d.AXIS_Y, step_3d)
@@ -63,8 +63,13 @@ while running:
         py3d.move_x(1)
 
     if keys[pygame.K_d]:
+
         py3d.move_x(-1)
 
+    py3d.rotate(degree)
     py3d.render_polygons()
+
+
+
 
     pygame.display.update()
