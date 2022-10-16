@@ -5,41 +5,41 @@ from shape import Shape
 class Rectangle(Shape):
     """
     RECTANGLE = [
-            np.matrix([-1, -1, 1]), np.matrix([1, -1, 1]),
-            np.matrix([1, 1, 1]), np.matrix([-1, 1, 1]),
-            np.matrix([-1, -1, -1]), np.matrix([1, -1, -1]),
-            np.matrix([1, 1, -1]), np.matrix([-1, 1, -1])
+            np.array([-1, -1, 1]), np.array([1, -1, 1]),
+            np.array([1, 1, 1]), np.array([-1, 1, 1]),
+            np.array([-1, -1, -1]), np.array([1, -1, -1]),
+            np.array([1, 1, -1]), np.array([-1, 1, -1])
         ]
     """
     # Rectangle composed of 12 triangles, 36 vertices
-    RECTANGLE = [
-            # South
-            np.matrix([0, 0, 0, 1]), np.matrix([0, 1, 0, 1]), np.matrix([1, 1, 0, 1]),
-            np.matrix([0, 0, 0, 1]), np.matrix([1, 1, 0, 1]), np.matrix([1, 0, 0, 1]),
-
-            # East
-            np.matrix([1, 0, 0, 1]), np.matrix([1, 1, 0, 1]), np.matrix([1, 1, 1, 1]),
-            np.matrix([1, 0, 0, 1]), np.matrix([1, 1, 1, 1]), np.matrix([1, 0, 1, 1]),
-
-            # North
-            np.matrix([1, 0, 1, 1]), np.matrix([1, 1, 1, 1]), np.matrix([0, 1, 1, 1]),
-            np.matrix([1, 0, 1, 1]), np.matrix([0, 1, 1, 1]), np.matrix([0, 0, 1, 1]),
-
-            # West
-            np.matrix([0, 0, 1, 1]), np.matrix([0, 1, 1, 1]), np.matrix([0, 1, 0, 1]),
-            np.matrix([0, 0, 1, 1]), np.matrix([0, 1, 0, 1]), np.matrix([0, 0, 0, 1]),
-
-            # Top
-            np.matrix([0, 1, 0, 1]), np.matrix([0, 1, 1, 1]), np.matrix([1, 1, 1, 1]),
-            np.matrix([0, 1, 0, 1]), np.matrix([1, 1, 1, 1]), np.matrix([1, 1, 0, 1]),
-
-            # Bottom
-            np.matrix([1, 0, 1, 1]), np.matrix([0, 0, 1, 1]), np.matrix([0, 0, 0, 1]),
-            np.matrix([1, 0, 1, 1]), np.matrix([0, 0, 0, 1]), np.matrix([1, 0, 0, 1])
-        ]
 
     DIMENSION = 3
 
+    RECTANGLE = [
+            # South
+            np.array([0, 0, 0, 1.0]), np.array([0, 1.0, 0, 1]), np.array([1.0, 1.0, 0, 1.0]),
+            np.array([0, 0, 0, 1.0]), np.array([1.0, 1.0, 0, 1.0]), np.array([1.0, 0, 0, 1.0]),
+
+            # East
+            np.array([1.0, 0, 0, 1.0]), np.array([1.0, 1.0, 0, 1.0]), np.array([1.0, 1.0, 1.0, 1.0]),
+            np.array([1.0, 0, 0, 1.0]), np.array([1.0, 1.0, 1.0, 1.0]), np.array([1.0, 0, 1.0, 1.0]),
+
+            # North
+            np.array([1.0, 0, 1.0, 1.0]), np.array([1.0, 1.0, 1.0, 1.0]), np.array([0, 1.0, 1.0, 1.0]),
+            np.array([1.0, 0, 1.0, 1.0]), np.array([0, 1.0, 1.0, 1.0]), np.array([0, 0, 1.0, 1.0]),
+
+            # West
+            np.array([0, 0, 1.0, 1.0]), np.array([0, 1.0, 1.0, 1.0]), np.array([0, 1.0, 0, 1.0]),
+            np.array([0, 0, 1.0, 1.0]), np.array([0, 1.0, 0, 1.0]), np.array([0, 0, 0, 1.0]),
+
+            # Top
+            np.array([0, 1.0, 0, 1.0]), np.array([0, 1.0, 1.0, 1.0]), np.array([1.0, 1.0, 1.0, 1.0]),
+            np.array([0, 1.0, 0, 1.0]), np.array([1.0, 1.0, 1.0, 1.0]), np.array([1.0, 1.0, 0, 1.0]),
+
+            # Bottom
+            np.array([1.0, 0, 1.0, 1.0]), np.array([0, 0, 1.0, 1.0]), np.array([0, 0, 0, 1.0]),
+            np.array([1.0, 0, 1.0, 1.0]), np.array([0, 0, 0, 1.0]), np.array([1.0, 0, 0, 1.0])
+        ]
     def __init__(self, width, height, depth, pos):
         super().__init__(self.RECTANGLE, pos)
         self.width = width
@@ -55,11 +55,11 @@ class Rectangle(Shape):
         for i in range(len(self.points_3d)):
             for x in range(self.DIMENSION):
                 if x == 0:
-                    self.points_3d[i][0, 0] *= self.width
+                    self.points_3d[i][0] *= self.width
                 elif x == 1:
-                    self.points_3d[i][0, 1] *= self.height
+                    self.points_3d[i][1] *= self.height
                 elif x == 2:
-                    self.points_3d[i][0, 2] *= self.depth
+                    self.points_3d[i][2] *= self.depth
 
         self.update_2d_projection(self.points_3d)
 

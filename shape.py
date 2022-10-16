@@ -1,17 +1,15 @@
 import numpy as np
 from math import cos, sin
 from copy import deepcopy
-
-
 class Shape:
     AXIS_Y = 0
     AXIS_X = 1
     AXIS_Z = 2
-    trans_matrix = np.matrix([
+    trans_matrix = np.array([
         [1, 0, 0, 0],
         [0, 1, 0, 0],
         [0, 0, 0, 0],
-        [0, 0, 0, 0],
+        [0, 0, 0, 0]
     ])
 
     AXES = {"X": AXIS_X, "Y": AXIS_Y, "Z": AXIS_Z}

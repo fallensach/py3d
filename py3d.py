@@ -2,18 +2,24 @@ import pygame
 import numpy as np
 from math import cos, sin, tan, atan, pi
 from rectangle import Rectangle
+from copy import deepcopy
 
-def get_x(point):
-    return point[0][0, 0]
+def mult_matrix(m1, m2):
+    new_m2 = deepcopy(m2)
+    for i in range(3):
+        for x in range(3):
+            new_m2[i] += m2[x] * m1[x][i]
 
-def get_y(point):
-    return point[0][0, 1]
+        new_m2[i] += m1[3][i]
+    w = (m2[0] * m1[0][3]) + (m2[1] * m1[1][3]) + (m2[2] * m1[2][3]) + m1[3][3]
 
-def get_z(point):
-    return point[0][0, 2]
+    if w != 0.0:
+        new_m2[0] /= w
+        new_m2[1] /= w
+        new_m2[2] /= w
 
-def get_w(point):
-    return point[0][0, 3]
+    return new_m2
+
 
 class Py3d:
     AXIS_Y = 0
@@ -42,7 +48,7 @@ class Py3d:
         self.fov = atan((pi/2)/2)
         self.z_far = 1000
         self.z_near = 0.1
-        self.projection_matrix = np.matrix([
+        self.projection_matrix = np.array([
             [self.aspect_ratio*self.fov, 0, 0, 0],
             [0, self.fov, 0, 0],
             [0, 0, self.z_far/(self.z_far-self.z_near), 1],
@@ -96,42 +102,27 @@ class Py3d:
         """
         vertices = []
         for i, point in enumerate(poly.points_2d):
-            x = float(point[0][0, 0]) + poly.x
-            y = float(point[1][0, 0]) + poly.y
+            x = float(point[0][0])# + poly.x
+            y = float(point[1][0])# + poly.y
             vertices.append((x, y))
+
             self.game.draw.circle(self.screen, self.WHITE, (x, y), self.point_size)
         self.draw_lines(vertices)
 
-    def mult_matrix(self, m1, m2):
-        w = m2[0][0, 0]*m1[0][0, 3] + m2[0][0, 1]*m1[1][0, 3] + m2[0][0, 2]*m1[2][0, 3] + m1[3][0, 3]
-
-        m2 = m2.reshape(4, 1)
-        matrix = np.dot(m1, m2)
-        matrix[0][0] += m1[3][0, 0]
-        matrix[1][0] += m1[3][0, 1]
-        matrix[2][0] += m1[3][0, 2]
-
-        if w != 0:
-            matrix[0][0] /= w
-            matrix[1][0] /= w
-            matrix[2][0] /= w
-
-        return matrix.reshape(1, 4)
-
     def rotate_test(self, poly, alpha):
-        rotation_matrix_x = np.matrix([
-            [cos(alpha/2), 0, sin(alpha/2), 0],
+        rotation_matrix_y = np.array([
+            [cos(alpha), 0, sin(alpha), 0],
             [0, 1, 0, 0],
-            [-sin(alpha/2), 0, cos(alpha/2), 0],
+            [-sin(alpha), 0, cos(alpha), 0],
             [0, 0, 0, 1]
         ])
-        rotation_matrix_y = np.matrix([
+        rotation_matrix_x = np.array([
             [1, 0, 0, 0],
             [0, cos(alpha), -sin(alpha), 0],
             [0, sin(alpha), cos(alpha), 0],
             [0, 0, 0, 1]
         ])
-        rotation_matrix_z = np.matrix([
+        rotation_matrix_z = np.array([
             [cos(alpha), -sin(alpha), 0, 0],
             [sin(alpha), cos(alpha), 0, 0],
             [0, 0, 1, 0],
@@ -139,72 +130,21 @@ class Py3d:
         ])
 
         new_points = []
-        for i, point in enumerate(poly.points_3d):
-            rotated_point_z = self.mult_matrix(rotation_matrix_z, point)
-            rotated_point_x = self.mult_matrix(rotation_matrix_x, rotated_point_z)
+        for point in poly.points_3d:
+            rotated_point_z = mult_matrix(rotation_matrix_z, point)
+            rotated_point_zx = mult_matrix(rotation_matrix_x, rotated_point_z)
+            rotated_point_zxy = mult_matrix(rotation_matrix_y, rotated_point_zx)
+            rotated_point_zx[2] += 10
+            projection = mult_matrix(self.projection_matrix, rotated_point_zx)
+            projection[0] += 1
+            projection[1] += 1
 
-            projection = self.mult_matrix(self.projection_matrix, rotated_point_x)
+            projection[0] *= 0.5 * self.width
+            projection[1] *= 0.5 * self.height
+
             new_points.append(projection)
-
+        #self.draw_poly(new_points)
         poly.update_2d_projection(new_points)
-
-    def rotate_poly(self, poly, axis, alpha):
-        """
-        Rotates the shape on the given axis and degree
-
-        axis: The axis to rotate on
-        alpha: The degree to rotate
-        """
-        if axis == self.AXIS_X:
-            rotation_matrix = np.matrix([
-                [cos(alpha), 0, sin(alpha), 0],
-                [0, 1, 0, 0],
-                [-sin(alpha), 0, cos(alpha), 0],
-                [0, 0, 0, 0]
-            ])
-        elif axis == self.AXIS_Y:
-            rotation_matrix = np.matrix([
-                [1, 0, 0, 0],
-                [0, cos(alpha), -sin(alpha), 0],
-                [0, sin(alpha), cos(alpha), 0],
-                [0, 0, 0, 0]
-            ])
-        elif axis == self.AXIS_Z:
-            rotation_matrix = np.matrix([
-                [cos(alpha), -sin(alpha), 0, 0],
-                [sin(alpha), cos(alpha), 0, 0],
-                [0, 0, 1, 0],
-                [0, 0, 0, 0]
-            ])
-        else:
-            assert "Axis not found"
-            return "ERROR"
-
-        new_points = []
-        for i, point in enumerate(poly.points_3d):
-            rotated_point = np.dot(rotation_matrix, point.reshape(4, 1))
-
-            projection = np.dot(self.projection_matrix, rotated_point.reshape(4, 1))
-            if get_w(projection.reshape(1, 4)) != 0:
-                projection[0][0] /= get_w(projection.reshape(1, 4))
-                projection[1][0] /= get_w(projection.reshape(1, 4))
-                projection[2][0] /= get_w(projection.reshape(1, 4))
-            new_points.append(projection)
-
-        poly.update_2d_projection(new_points)
-        #self.update_3d(poly)
-
-    def update_3d(self, poly):
-        new_poly = []
-        for i, point in enumerate(poly.points_3d):
-            projection = np.dot(self.projection_matrix, point.reshape(4, 1))
-            if get_w(projection.reshape(1, 4)) != 0:
-                projection[0][0] /= get_w(projection.reshape(1, 4))
-                projection[1][0] /= get_w(projection.reshape(1, 4))
-                projection[2][0] /= get_w(projection.reshape(1, 4))
-            new_poly.append(projection)
-
-        return poly.update_2d_projection(new_poly)
 
     def rotate(self, degree):
         for poly in self.polygons:

@@ -11,18 +11,19 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 py3d = Py3d(WIDTH, HEIGHT, pygame, screen)
 
 clock = pygame.time.Clock()
-degree = 0.01
+
 
 zoom = 100
 move_x = 100
 
-py3d.create_rectangle(400, 400, 400, (WIDTH/2, HEIGHT/2))
+py3d.create_rectangle(1, 1, 1, (WIDTH/2, HEIGHT/2))
 
 #py3d.create_rectangle(10, 10, 20, ((WIDTH/2)+200, HEIGHT/2))
 
 
 step_3d = 0.02
 start = True
+degree = 0
 while running:
     degree += 0.01
     if start:
@@ -30,7 +31,7 @@ while running:
         start = False
 
     clock.tick(60)
-    screen.fill((0,0,0))
+    screen.fill((0, 0, 0))
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -48,7 +49,7 @@ while running:
         py3d.rotate(py3d.AXIS_Y, -step_3d)
 
     if keys[pygame.K_LEFT]:
-        py3d.rotate(py3d.AXIS_X, -step_3d)
+        degree += 0.01
 
     if keys[pygame.K_RIGHT]:
         py3d.rotate(py3d.AXIS_X, step_3d)
@@ -68,8 +69,5 @@ while running:
 
     py3d.rotate(degree)
     py3d.render_polygons()
-
-
-
 
     pygame.display.update()
