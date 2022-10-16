@@ -134,13 +134,13 @@ class Py3d:
             rotated_point_z = mult_matrix(rotation_matrix_z, point)
             rotated_point_zx = mult_matrix(rotation_matrix_x, rotated_point_z)
             rotated_point_zxy = mult_matrix(rotation_matrix_y, rotated_point_zx)
-            rotated_point_zx[2] += 10
+            rotated_point_zx[2] += 1
             projection = mult_matrix(self.projection_matrix, rotated_point_zx)
             projection[0] += 1
             projection[1] += 1
 
-            projection[0] *= 0.5 * self.width
-            projection[1] *= 0.5 * self.height
+            projection[0] *= 0.2 * self.width
+            projection[1] *= 0.2 * self.height
 
             new_points.append(projection)
         #self.draw_poly(new_points)

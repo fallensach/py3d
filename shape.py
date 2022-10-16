@@ -1,6 +1,7 @@
 import numpy as np
 from math import cos, sin
 from copy import deepcopy
+from triangle import Triangle
 class Shape:
     AXIS_Y = 0
     AXIS_X = 1
@@ -18,8 +19,8 @@ class Shape:
         self.hit_box = set()
         self.x = pos[0]
         self.y = pos[1]
-        self.points_3d = deepcopy(shape_matrix)
-        self.points_2d = [n for n in range(len(self.points_3d))]
+        self.points_3d = self.triangularize(shape_matrix)
+        self.points_2d = [n for n in range(len(self.points_3d)*3)]
         self.update_2d_projection(self.points_3d)
 
     def move_x(self, step):
@@ -27,6 +28,24 @@ class Shape:
             self.points_3d[i][0, 0] += step
 
         self.update_2d_projection()
+
+    def triangularize(self, points):
+        """
+        Divides the shape into triangles
+        """
+        i = 0
+        triangles = []
+        triangle_vertices = []
+        for point in points:
+            if i == 3:
+                i = 0
+                triangle = Triangle(triangle_vertices[0], triangle_vertices[1], triangle_vertices[2])
+                triangles.append(triangle)
+                triangle_vertices = []
+            triangle_vertices.append(point)
+            i += 1
+
+        return triangles
 
     def update_2d_projection(self, new_points):
         """

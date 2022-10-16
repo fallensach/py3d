@@ -40,6 +40,7 @@ class Rectangle(Shape):
             np.array([1.0, 0, 1.0, 1.0]), np.array([0, 0, 1.0, 1.0]), np.array([0, 0, 0, 1.0]),
             np.array([1.0, 0, 1.0, 1.0]), np.array([0, 0, 0, 1.0]), np.array([1.0, 0, 0, 1.0])
         ]
+
     def __init__(self, width, height, depth, pos):
         super().__init__(self.RECTANGLE, pos)
         self.width = width
