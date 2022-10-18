@@ -1,16 +1,19 @@
 import pygame
 import numpy as np
-from math import cos, sin, tan, atan, pi
+from math import cos, sin, atan, pi
 from rectangle import Rectangle
 from copy import deepcopy
 
+
 def mult_matrix(m1, m2):
-    new_m2 = deepcopy(m2)
+    new_m2 = np.array([0., 0., 0.])
+
     for i in range(3):
         for x in range(3):
             new_m2[i] += m2[x] * m1[x][i]
 
         new_m2[i] += m1[3][i]
+
     w = (m2[0] * m1[0][3]) + (m2[1] * m1[1][3]) + (m2[2] * m1[2][3]) + m1[3][3]
 
     if w != 0.0:
@@ -19,7 +22,6 @@ def mult_matrix(m1, m2):
         new_m2[2] /= w
 
     return new_m2
-
 
 class Py3d:
     AXIS_Y = 0
@@ -101,12 +103,12 @@ class Py3d:
         poly: polygon to draw
         """
         vertices = []
-        for i, point in enumerate(poly.points_2d):
-            x = float(point[0][0])# + poly.x
-            y = float(point[1][0])# + poly.y
-            vertices.append((x, y))
-
-            self.game.draw.circle(self.screen, self.WHITE, (x, y), self.point_size)
+        for tri in poly.world_space:
+            for vertex in tri:
+                x = vertex[0]  # + poly.x
+                y = vertex[1]  # + poly.y
+                vertices.append((x, y))
+                self.game.draw.circle(self.screen, self.WHITE, (x, y), self.point_size)
         self.draw_lines(vertices)
 
     def rotate_test(self, poly, alpha):
@@ -130,21 +132,27 @@ class Py3d:
         ])
 
         new_points = []
-        for point in poly.points_3d:
-            rotated_point_z = mult_matrix(rotation_matrix_z, point)
-            rotated_point_zx = mult_matrix(rotation_matrix_x, rotated_point_z)
-            rotated_point_zxy = mult_matrix(rotation_matrix_y, rotated_point_zx)
-            rotated_point_zx[2] += 1
-            projection = mult_matrix(self.projection_matrix, rotated_point_zx)
-            projection[0] += 1
-            projection[1] += 1
+        for tri in poly.mesh_space:
+            proj_triangle = []
+            for i in range(len(tri.points)):
+                rotated_point_z = mult_matrix(rotation_matrix_z, tri.points[i])
+                proj_triangle.append(rotated_point_z)
+                rotated_point_zx = mult_matrix(rotation_matrix_x, proj_triangle[i])
+                rotated_point_zx[2] += 2
+                proj_triangle[i] = rotated_point_zx
 
-            projection[0] *= 0.2 * self.width
-            projection[1] *= 0.2 * self.height
+            for i, point in enumerate(proj_triangle):
+                projection = mult_matrix(self.projection_matrix, point)
+                projection[0] += 1
+                projection[1] += 1
 
-            new_points.append(projection)
-        #self.draw_poly(new_points)
-        poly.update_2d_projection(new_points)
+                projection[0] *= 0.5 * self.width
+                projection[1] *= 0.5 * self.height
+                proj_triangle[i] = projection
+
+            new_points.append(proj_triangle)
+
+        poly.update_world(new_points)
 
     def rotate(self, degree):
         for poly in self.polygons:
